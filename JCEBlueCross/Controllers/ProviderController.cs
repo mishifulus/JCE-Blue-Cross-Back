@@ -29,7 +29,7 @@ namespace JCEBlueCross.Controllers
           {
               return NotFound();
           }
-            return await _context.Providers.ToListAsync();
+            return await _context.Providers.Include(p => p.RegisteringUser).ToListAsync();
         }
 
         // GET: api/Provider/5
@@ -40,7 +40,7 @@ namespace JCEBlueCross.Controllers
           {
               return NotFound();
           }
-            var provider = await _context.Providers.FindAsync(id);
+            var provider = await _context.Providers.Include(p => p.RegisteringUser).FirstOrDefaultAsync(p => p.ProviderId == id);
 
             if (provider == null)
             {
@@ -90,6 +90,22 @@ namespace JCEBlueCross.Controllers
           {
               return Problem("Entity set 'AppDbContext.Providers'  is null.");
           }
+            
+            if (provider.RegisteringUser != null)
+            {
+                var user = await _context.Users.FindAsync(provider.RegisteringUser.UserId);
+                if (user == null)
+                {
+                    return NotFound("Incorrect User");
+                }
+
+                provider.RegisteringUser = user;
+            }
+            else
+            {
+                provider.RegisteringUser = null;
+            }
+
             _context.Providers.Add(provider);
             await _context.SaveChangesAsync();
 

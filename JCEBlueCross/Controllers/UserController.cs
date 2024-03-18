@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using JCEBlueCross.Context;
 using JCEBlueCross.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace JCEBlueCross.Controllers
 {
@@ -25,10 +27,10 @@ namespace JCEBlueCross.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-          if (_context.Users == null)
-          {
-              return NotFound();
-          }
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
             return await _context.Users.ToListAsync();
         }
 
@@ -36,10 +38,10 @@ namespace JCEBlueCross.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-          if (_context.Users == null)
-          {
-              return NotFound();
-          }
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
             var user = await _context.Users.FindAsync(id);
 
             if (user == null)
@@ -60,6 +62,21 @@ namespace JCEBlueCross.Controllers
                 return BadRequest();
             }
 
+            var existingUser = await _context.Users.FindAsync(id);
+            
+            if (existingUser == null)
+            {
+                return NotFound();
+            }
+
+            // UPDATE PASSWORD
+            if (user.Password != existingUser.Password)
+            {
+                user.Password = EncryptPassword(user.Password);
+            }
+
+            //SAVE
+            _context.Entry(existingUser).State = EntityState.Detached;
             _context.Entry(user).State = EntityState.Modified;
 
             try
@@ -86,17 +103,19 @@ namespace JCEBlueCross.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-          if (_context.Users == null)
-          {
-              return Problem("Entity set 'AppDbContext.Users'  is null.");
-          }
+            if (_context.Users == null)
+            {
+                return Problem("Entity set 'AppDbContext.Users'  is null.");
+            }
+
+            user.Password = EncryptPassword(user.Password);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetUser", new { id = user.UserId }, user);
         }
 
-        // DELETE: api/User/5 //BLOCK USER
+        // DELETE: api/User/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -123,140 +142,62 @@ namespace JCEBlueCross.Controllers
         }
 
 
-        //CUSTOM SERVICES
-
-        // PUT: api/QuestionsUser/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> QuestionsUser(int id, string question, string response)
-        {
-            if (!UserExists(id))
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users.FindAsync(id);
-
-            switch (question)
-            {
-                case "Mother":
-                    user.MotherQuestion = response;
-                    break;
-                case "Chilhood":
-                    user.ChilhoodQuestion = response;
-                    break;
-                case "City":
-                    user.CityQuestion = response;
-                    break;
-                case "Car":
-                    user.CarQuestion = response;
-                    break;
-                case "University":
-                    user.UniversityQuestion = response;
-                    break;
-                case "Sport":
-                    user.SportQuestion = response;
-                    break;
-                case "Boss":
-                    user.BossQuestion = response;
-                    break;
-                case "Band":
-                    user.BandQuestion = response;
-                    break;
-                default:
-                    break;
-            }
-
-
-            _context.Users.Update(user);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return BadRequest();
-            }
-
-            return NoContent();
-        }
-
-        // PUT: api/ModifyUsername/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> ModifyUsername(int id, string username)
-        {
-            if (!UserExists(id))
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users.FindAsync(id);
-
-            user.Username = username;
-
-            _context.Users.Update(user);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return BadRequest();
-            }
-
-            return NoContent();
-        }
-
-        // PUT: api/ModifyPassword/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> ModifyPassword(int id, string password)
-        {
-            if (!UserExists(id))
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users.FindAsync(id);
-
-            user.Password = password;
-
-            _context.Users.Update(user);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return BadRequest();
-            }
-
-            return NoContent();
-        }
-
+        //LOGIN
         // GET: api/Login/5
         [HttpGet("Login")]
         public async Task<ActionResult<User>> Login(string username, string password)
         {
             if (_context.Users == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username && u.Password == password);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
 
             if (user == null)
             {
-                return NotFound("User not found or incorrect password");
+                return NotFound("Incorrect username");
+            }
+
+            if (!VerifyPassword(password, user.Password))
+            {
+                return NotFound("Incorrect password");
+            }
+
+            if (user.ExpireDate <= DateTime.Now)
+            {
+                return NotFound("User expired");
+            }
+
+            if (user.Status == 0)
+            {
+                return NotFound("User blocked");
             }
 
             return user;
         }
 
 
+        //PASSWORD
+        private static string EncryptPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+
+        private static bool VerifyPassword(string inputPassword, string hashedPassword)
+        {
+            string hashedInputPassword = EncryptPassword(inputPassword);
+            return hashedInputPassword == hashedPassword;
+        }
     }
+
 }

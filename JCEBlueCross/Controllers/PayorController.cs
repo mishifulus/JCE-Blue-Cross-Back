@@ -29,7 +29,7 @@ namespace JCEBlueCross.Controllers
           {
               return NotFound();
           }
-            return await _context.Payor.ToListAsync();
+            return await _context.Payor.Include(p => p.RegisteringUser).ToListAsync();  
         }
 
         // GET: api/Payor/5
@@ -40,7 +40,7 @@ namespace JCEBlueCross.Controllers
           {
               return NotFound();
           }
-            var payor = await _context.Payor.FindAsync(id);
+            var payor = await _context.Payor.Include(p => p.RegisteringUser).FirstOrDefaultAsync(p => p.PayorId == id);
 
             if (payor == null)
             {
@@ -90,6 +90,22 @@ namespace JCEBlueCross.Controllers
           {
               return Problem("Entity set 'AppDbContext.Payor'  is null.");
           }
+
+          if (payor.RegisteringUser != null)
+            {
+                var user = await _context.Users.FindAsync(payor.RegisteringUser.UserId);
+                if (user == null)
+                {
+                    return NotFound("Incorrect user");
+                }
+
+                payor.RegisteringUser = user;
+            }
+          else
+            {
+                payor.RegisteringUser = null;
+            }
+
             _context.Payor.Add(payor);
             await _context.SaveChangesAsync();
 

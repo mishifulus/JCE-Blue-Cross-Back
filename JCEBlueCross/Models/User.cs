@@ -51,7 +51,6 @@ namespace JCEBlueCross.Models
         public string Username { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(20)]
         public string Password { get; set; } = string.Empty;
 
         [Required]
@@ -62,6 +61,9 @@ namespace JCEBlueCross.Models
 
         [Column(TypeName = "DATETIME")]
         public DateTime SubscribedDate { get; set; } = DateTime.Now;
+
+        [Column(TypeName = "DATETIME")]
+        public DateTime ExpireDate { get; set; } = DateTime.Now;
 
         public string MotherQuestion { get; set; } = string.Empty;
 

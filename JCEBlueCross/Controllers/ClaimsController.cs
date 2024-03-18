@@ -29,7 +29,7 @@ namespace JCEBlueCross.Controllers
           {
               return NotFound();
           }
-            return await _context.Claims.ToListAsync();
+            return await _context.Claims.Include(p => p.Member).Include(p => p.Provider).ThenInclude(p => p.RegisteringUser).Include(p => p.Payor).ThenInclude(p => p.RegisteringUser).ToListAsync();
         }
 
         // GET: api/Claims/5
@@ -40,7 +40,7 @@ namespace JCEBlueCross.Controllers
           {
               return NotFound();
           }
-            var claim = await _context.Claims.FindAsync(id);
+            var claim = await _context.Claims.Include(p => p.Member).Include(p => p.Provider).ThenInclude(p => p.RegisteringUser).Include(p => p.Payor).ThenInclude(p => p.RegisteringUser).FirstOrDefaultAsync(p => p.ClaimId == id);
 
             if (claim == null)
             {
@@ -90,6 +90,52 @@ namespace JCEBlueCross.Controllers
           {
               return Problem("Entity set 'AppDbContext.Claims'  is null.");
           }
+            
+            if (claim.Member != null)
+            {
+                var user = await _context.Users.FindAsync(claim.Member.UserId);
+                if (user == null)
+                {
+                    return NotFound("Incorrect member");
+                }
+
+                claim.Member = user;
+            }
+            else
+            {
+                claim.Member = null;
+            }
+
+            if (claim.Provider != null)
+            {
+                var provider = await _context.Providers.FindAsync(claim.Provider.ProviderId);
+                if (provider == null)
+                {
+                    return NotFound("Incorrect provider");
+                }
+
+                claim.Provider = provider;
+            }
+            else
+            {
+                claim.Provider = null;
+            }
+
+            if (claim.Payor != null)
+            {
+                var payor = await _context.Payor.FindAsync(claim.Payor.PayorId);
+                if (payor == null)
+                {
+                    return NotFound("Incorrect payor");
+                }
+
+                claim.Payor = payor;
+            }
+            else
+            {
+                claim.Payor = null;
+            }
+
             _context.Claims.Add(claim);
             await _context.SaveChangesAsync();
 

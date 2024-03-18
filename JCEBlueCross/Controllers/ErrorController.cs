@@ -29,7 +29,7 @@ namespace JCEBlueCross.Controllers
           {
               return NotFound();
           }
-            return await _context.Errors.ToListAsync();
+            return await _context.Errors.Include(p => p.RegisteringUser).ToListAsync();
         }
 
         // GET: api/Error/5
@@ -40,7 +40,7 @@ namespace JCEBlueCross.Controllers
           {
               return NotFound();
           }
-            var error = await _context.Errors.FindAsync(id);
+            var error = await _context.Errors.Include(p => p.RegisteringUser).FirstOrDefaultAsync(p => p.ErrorId == id);
 
             if (error == null)
             {
@@ -90,6 +90,22 @@ namespace JCEBlueCross.Controllers
           {
               return Problem("Entity set 'AppDbContext.Errors'  is null.");
           }
+
+          if (error.RegisteringUser != null)
+            {
+                var user = await _context.Users.FindAsync(error.RegisteringUser.UserId);
+                if (user == null)
+                {
+                    return NotFound("Incorrect user");
+                }
+
+                error.RegisteringUser = user;
+            }
+          else
+            {
+                error.RegisteringUser = null;
+            }
+
             _context.Errors.Add(error);
             await _context.SaveChangesAsync();
 

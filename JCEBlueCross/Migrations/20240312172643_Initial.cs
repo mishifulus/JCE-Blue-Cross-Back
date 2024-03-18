@@ -27,10 +27,11 @@ namespace JCEBlueCross.Migrations
                     Sex = table.Column<int>(type: "int", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Username = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Role = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     SubscribedDate = table.Column<DateTime>(type: "DATETIME", nullable: false),
+                    ExpireDate = table.Column<DateTime>(type: "DATETIME", nullable: false),
                     MotherQuestion = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ChilhoodQuestion = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CityQuestion = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -176,7 +177,8 @@ namespace JCEBlueCross.Migrations
                     TotalAmount = table.Column<double>(type: "float", nullable: false),
                     MemberUserId = table.Column<int>(type: "int", nullable: false),
                     ProviderId = table.Column<int>(type: "int", nullable: false),
-                    PayorId = table.Column<int>(type: "int", nullable: false)
+                    PayorId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

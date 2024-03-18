@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JCEBlueCross.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240311195351_Initial")]
+    [Migration("20240312172643_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -200,6 +200,9 @@ namespace JCEBlueCross.Migrations
                     b.Property<string>("ServiceCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<double>("TotalAmount")
                         .HasColumnType("float");
@@ -408,6 +411,9 @@ namespace JCEBlueCross.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<DateTime>("ExpireDate")
+                        .HasColumnType("DATETIME");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -424,8 +430,7 @@ namespace JCEBlueCross.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
