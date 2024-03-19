@@ -9,11 +9,13 @@ using JCEBlueCross.Context;
 using JCEBlueCross.Models;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web.Http.Cors;
 
 namespace JCEBlueCross.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors(origins: "http://localhost:5173", headers:"*", methods:"*")]
     public class UserController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -50,6 +52,34 @@ namespace JCEBlueCross.Controllers
             }
 
             return user;
+        }
+
+        // GET: api/SearchUsers/searchTerm
+        [HttpGet("search/{searchTerm}")]
+        public async Task<ActionResult<IEnumerable<User>>> SearchUsers(string searchTerm)
+        {
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
+
+            var users = await _context.Users.Where(u => 
+                u.Name.Contains(searchTerm) ||
+                u.LastName.Contains(searchTerm) ||
+                u.UserAddress.Contains(searchTerm) ||
+                u.ZipCode.Contains(searchTerm) ||
+                u.State.Contains(searchTerm) ||
+                u.City.Contains(searchTerm) ||
+                u.Email.Contains(searchTerm) ||
+                u.Username.Contains(searchTerm)
+                ).ToListAsync();
+
+            if (!users.Any())
+            {
+                return NotFound();
+            }
+
+            return users;
         }
 
         // PUT: api/User/5
@@ -143,8 +173,8 @@ namespace JCEBlueCross.Controllers
 
 
         //LOGIN
-        // GET: api/Login/5
-        [HttpGet("Login")]
+        // POST: api/Login/5
+        [HttpPost("/login")]
         public async Task<ActionResult<User>> Login(string username, string password)
         {
             if (_context.Users == null)

@@ -50,6 +50,31 @@ namespace JCEBlueCross.Controllers
             return provider;
         }
 
+        // GET: api/SearchProviders/searchTerm
+        [HttpGet("search/{searchTerm}")]
+        public async Task<ActionResult<IEnumerable<Provider>>> SearchProviders(string searchTerm)
+        {
+            if (_context.Providers == null)
+            {
+                return NotFound();
+            }
+
+            var providers = await _context.Providers.Where(p => 
+                p.ProviderName.Contains(searchTerm) ||
+                p.ProviderAddress.Contains(searchTerm) ||
+                p.ZipCode.Contains(searchTerm) ||
+                p.State.Contains(searchTerm) ||
+                p.City.Contains(searchTerm)
+                ).ToListAsync();
+
+            if (!providers.Any())
+            {
+                return NotFound();
+            }
+
+            return providers;
+        }
+
         // PUT: api/Provider/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]

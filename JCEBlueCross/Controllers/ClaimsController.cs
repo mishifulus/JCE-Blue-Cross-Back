@@ -50,6 +50,53 @@ namespace JCEBlueCross.Controllers
             return claim;
         }
 
+        // GET: api/SearchClaim/searchTerm
+        [HttpGet("search/{searchTerm}")]
+        public async Task<ActionResult<IEnumerable<Claim>>> SearchClaims(string searchTerm)
+        {
+            if (_context.Claims == null)
+            {
+                return NotFound();
+            }
+
+            var claims = await _context.Claims.Where(c =>
+                c.ClaimNumber.Contains(searchTerm) ||
+                c.InstitutionalClaimCode.Contains(searchTerm) ||
+                c.ProfessionalClaimCode.Contains(searchTerm) ||
+                c.TypeBill.Contains(searchTerm) ||
+                c.ReferalNum.Contains(searchTerm) ||
+                c.ServiceCode.Contains(searchTerm) ||
+                c.AuthCode.Contains(searchTerm) ||
+                c.MedicalRecordNumber.Contains(searchTerm) ||
+                c.PayerClaimControlNumber.Contains(searchTerm) ||
+                c.AutoAccidentState.Contains(searchTerm) ||
+                c.FileInf.Contains(searchTerm) ||
+                c.ClaimNote.Contains(searchTerm) ||
+                c.BillingNote.Contains(searchTerm) ||
+                c.PrincipalDiagnosisCode.Contains(searchTerm) ||
+                c.AdmitingDiagnosisCode.Contains(searchTerm) ||
+                c.PatientReasonCode.Contains(searchTerm) ||
+                c.ExternalCausesCode.Contains(searchTerm) ||
+                c.DiagnosisRelatedCode.Contains(searchTerm) ||
+                c.OtherDiagnosisCode.Contains(searchTerm) ||
+                c.PrincipalProcedureCode.Contains(searchTerm) ||
+                c.OtherProcedureCode.Contains(searchTerm) ||
+                c.OccurrenceSpamCode.Contains(searchTerm) ||
+                c.OccurrenceInformationCode.Contains(searchTerm) ||
+                c.ValueInformationCode.Contains(searchTerm) ||
+                c.ConditionInformationCode.Contains(searchTerm) ||
+                c.TreatmentCodeCode.Contains(searchTerm) ||
+                c.ClaimPricingCode.Contains(searchTerm)
+                ).ToListAsync();
+
+            if (!claims.Any())
+            {
+                return NotFound();
+            }
+
+            return claims;
+        }
+
         // PUT: api/Claims/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]

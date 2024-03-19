@@ -50,6 +50,29 @@ namespace JCEBlueCross.Controllers
             return error;
         }
 
+        // GET: api/SearchErrors/searchTerm
+        [HttpGet("search/{searchTerm}")]
+        public async Task<ActionResult<IEnumerable<Error>>> SearchErrors(string searchTerm)
+        {
+            if (_context.Errors == null)
+            {
+                return NotFound();
+            }
+
+            var errors = await _context.Errors.Where(e =>
+                e.Message.Contains(searchTerm) ||
+                e.Description.Contains(searchTerm) ||
+                e.Field.Contains(searchTerm)
+                ).ToListAsync();
+
+            if (!errors.Any())
+            {
+                return NotFound();
+            }
+
+            return errors;
+        }
+
         // PUT: api/Error/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
