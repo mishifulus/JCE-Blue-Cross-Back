@@ -207,6 +207,22 @@ namespace JCEBlueCross.Controllers
             return user;
         }
 
+        // PUT: block/username
+        [HttpPut("/block/{username}")]
+        public async Task<ActionResult> BlockUser(string username)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.Status = 0;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
 
         //PASSWORD
         private static string EncryptPassword(string password)

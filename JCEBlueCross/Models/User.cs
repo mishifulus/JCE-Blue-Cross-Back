@@ -57,7 +57,7 @@ namespace JCEBlueCross.Models
         public int Role { get; set; } = 0; // 0 - Admin, 1 - Member, 2 - Provider, 3 - Payor
 
         [Required]
-        public int Status { get; set; } = 1; // 1 - Active, 0 - Inactive
+        public int Status { get; set; } = 1; // 1 - New Password, 0 - Blocked, 2 - Active
 
         [Column(TypeName = "DATETIME")]
         public DateTime SubscribedDate { get; set; } = DateTime.Now;
