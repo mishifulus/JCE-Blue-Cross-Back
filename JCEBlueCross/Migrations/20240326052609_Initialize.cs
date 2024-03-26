@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace JCEBlueCross.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Initialize : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -54,7 +54,6 @@ namespace JCEBlueCross.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Message = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Field = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     RegistrationDate = table.Column<DateTime>(type: "DATETIME", nullable: false),
                     RegisteringUserUserId = table.Column<int>(type: "int", nullable: true)
@@ -118,6 +117,53 @@ namespace JCEBlueCross.Migrations
                         column: x => x.RegisteringUserUserId,
                         principalTable: "Users",
                         principalColumn: "UserId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Condition",
+                columns: table => new
+                {
+                    ConditionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Field = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    ConditionLabel = table.Column<int>(type: "int", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    ErrorId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Condition", x => x.ConditionId);
+                    table.ForeignKey(
+                        name: "FK_Condition_Errors_ErrorId",
+                        column: x => x.ErrorId,
+                        principalTable: "Errors",
+                        principalColumn: "ErrorId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PayorError",
+                columns: table => new
+                {
+                    PayorErrorId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ErrorId = table.Column<int>(type: "int", nullable: false),
+                    PayorId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PayorError", x => x.PayorErrorId);
+                    table.ForeignKey(
+                        name: "FK_PayorError_Errors_ErrorId",
+                        column: x => x.ErrorId,
+                        principalTable: "Errors",
+                        principalColumn: "ErrorId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PayorError_Payor_PayorId",
+                        column: x => x.PayorId,
+                        principalTable: "Payor",
+                        principalColumn: "PayorId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -219,6 +265,11 @@ namespace JCEBlueCross.Migrations
                 column: "ProviderId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Condition_ErrorId",
+                table: "Condition",
+                column: "ErrorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Errors_RegisteringUserUserId",
                 table: "Errors",
                 column: "RegisteringUserUserId");
@@ -227,6 +278,16 @@ namespace JCEBlueCross.Migrations
                 name: "IX_Payor_RegisteringUserUserId",
                 table: "Payor",
                 column: "RegisteringUserUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PayorError_ErrorId",
+                table: "PayorError",
+                column: "ErrorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PayorError_PayorId",
+                table: "PayorError",
+                column: "PayorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Providers_RegisteringUserUserId",
@@ -241,13 +302,19 @@ namespace JCEBlueCross.Migrations
                 name: "Claims");
 
             migrationBuilder.DropTable(
+                name: "Condition");
+
+            migrationBuilder.DropTable(
+                name: "PayorError");
+
+            migrationBuilder.DropTable(
+                name: "Providers");
+
+            migrationBuilder.DropTable(
                 name: "Errors");
 
             migrationBuilder.DropTable(
                 name: "Payor");
-
-            migrationBuilder.DropTable(
-                name: "Providers");
 
             migrationBuilder.DropTable(
                 name: "Users");

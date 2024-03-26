@@ -65,7 +65,8 @@ namespace JCEBlueCross.Controllers
                 p.ZipCode.Contains(searchTerm) ||
                 p.State.Contains(searchTerm) ||
                 p.City.Contains(searchTerm)
-                ).ToListAsync();
+                ).Include(p => p.RegisteringUser).
+                ToListAsync();
 
             if (!providers.Any())
             {

@@ -36,5 +36,7 @@ namespace JCEBlueCross.Models
         public DateTime RegistrationDate { get; set; } = DateTime.Now;
 
         public User? RegisteringUser { get; set; }
+
+        public ICollection<PayorError> PayorErrors { get; set; } = new List<PayorError>();
     }
 }

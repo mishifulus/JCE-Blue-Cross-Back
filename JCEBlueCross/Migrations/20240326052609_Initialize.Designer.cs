@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JCEBlueCross.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240312172643_Initial")]
-    partial class Initial
+    [Migration("20240326052609_Initialize")]
+    partial class Initialize
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.16")
+                .HasAnnotation("ProductVersion", "7.0.17")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -230,6 +230,37 @@ namespace JCEBlueCross.Migrations
                     b.ToTable("Claims");
                 });
 
+            modelBuilder.Entity("JCEBlueCross.Models.Condition", b =>
+                {
+                    b.Property<int>("ConditionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConditionId"));
+
+                    b.Property<int>("ConditionLabel")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ErrorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Field")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("ConditionId");
+
+                    b.HasIndex("ErrorId");
+
+                    b.ToTable("Condition");
+                });
+
             modelBuilder.Entity("JCEBlueCross.Models.Error", b =>
                 {
                     b.Property<int>("ErrorId")
@@ -242,11 +273,6 @@ namespace JCEBlueCross.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Field")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -316,6 +342,29 @@ namespace JCEBlueCross.Migrations
                     b.HasIndex("RegisteringUserUserId");
 
                     b.ToTable("Payor");
+                });
+
+            modelBuilder.Entity("JCEBlueCross.Models.PayorError", b =>
+                {
+                    b.Property<int>("PayorErrorId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PayorErrorId"));
+
+                    b.Property<int>("ErrorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PayorId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PayorErrorId");
+
+                    b.HasIndex("ErrorId");
+
+                    b.HasIndex("PayorId");
+
+                    b.ToTable("PayorError");
                 });
 
             modelBuilder.Entity("JCEBlueCross.Models.Provider", b =>
@@ -504,6 +553,13 @@ namespace JCEBlueCross.Migrations
                     b.Navigation("Provider");
                 });
 
+            modelBuilder.Entity("JCEBlueCross.Models.Condition", b =>
+                {
+                    b.HasOne("JCEBlueCross.Models.Error", null)
+                        .WithMany("Conditions")
+                        .HasForeignKey("ErrorId");
+                });
+
             modelBuilder.Entity("JCEBlueCross.Models.Error", b =>
                 {
                     b.HasOne("JCEBlueCross.Models.User", "RegisteringUser")
@@ -522,6 +578,25 @@ namespace JCEBlueCross.Migrations
                     b.Navigation("RegisteringUser");
                 });
 
+            modelBuilder.Entity("JCEBlueCross.Models.PayorError", b =>
+                {
+                    b.HasOne("JCEBlueCross.Models.Error", "Error")
+                        .WithMany("PayorErrors")
+                        .HasForeignKey("ErrorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("JCEBlueCross.Models.Payor", "Payor")
+                        .WithMany("PayorErrors")
+                        .HasForeignKey("PayorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Error");
+
+                    b.Navigation("Payor");
+                });
+
             modelBuilder.Entity("JCEBlueCross.Models.Provider", b =>
                 {
                     b.HasOne("JCEBlueCross.Models.User", "RegisteringUser")
@@ -529,6 +604,18 @@ namespace JCEBlueCross.Migrations
                         .HasForeignKey("RegisteringUserUserId");
 
                     b.Navigation("RegisteringUser");
+                });
+
+            modelBuilder.Entity("JCEBlueCross.Models.Error", b =>
+                {
+                    b.Navigation("Conditions");
+
+                    b.Navigation("PayorErrors");
+                });
+
+            modelBuilder.Entity("JCEBlueCross.Models.Payor", b =>
+                {
+                    b.Navigation("PayorErrors");
                 });
 #pragma warning restore 612, 618
         }

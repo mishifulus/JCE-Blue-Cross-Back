@@ -17,9 +17,10 @@ namespace JCEBlueCross.Models
         [StringLength(200)]
         public string Description { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(100)]
-        public string Field { get; set; } = string.Empty;
+
+        public ICollection<PayorError> PayorErrors { get; set; } = new List<PayorError>();
+
+        public ICollection<Condition> Conditions { get; set; } = new List<Condition>();
 
         [Required]
         public int Status { get; set; } = 1; // 1 - Active, 0 - Inactive

@@ -87,7 +87,8 @@ namespace JCEBlueCross.Controllers
                 c.ConditionInformationCode.Contains(searchTerm) ||
                 c.TreatmentCodeCode.Contains(searchTerm) ||
                 c.ClaimPricingCode.Contains(searchTerm)
-                ).ToListAsync();
+                ).Include(p => p.Member).Include(p => p.Provider).ThenInclude(p => p.RegisteringUser).Include(p => p.Payor).ThenInclude(p => p.RegisteringUser)
+                .ToListAsync();
 
             if (!claims.Any())
             {

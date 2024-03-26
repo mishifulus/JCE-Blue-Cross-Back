@@ -19,5 +19,7 @@ namespace JCEBlueCross.Context
         public DbSet<Error> Errors { get; set; }
 
         public DbSet<Claim> Claims { get; set; }
+
+        public DbSet<JCEBlueCross.Models.Condition> Condition { get; set; } = default!;
     }
 }

@@ -61,9 +61,9 @@ namespace JCEBlueCross.Controllers
 
             var errors = await _context.Errors.Where(e =>
                 e.Message.Contains(searchTerm) ||
-                e.Description.Contains(searchTerm) ||
-                e.Field.Contains(searchTerm)
-                ).ToListAsync();
+                e.Description.Contains(searchTerm)
+                ).Include(p => p.RegisteringUser)
+                .ToListAsync();
 
             if (!errors.Any())
             {
