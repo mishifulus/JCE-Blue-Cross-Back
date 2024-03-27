@@ -18,5 +18,7 @@ namespace JCEBlueCross.Models
         [Required]
         [StringLength(100)]
         public string Value { get; set; } = string.Empty;
+
+        public Error? Error { get; set; }
     }
 }

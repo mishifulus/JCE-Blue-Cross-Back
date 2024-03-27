@@ -149,8 +149,7 @@ namespace JCEBlueCross.Controllers
                 return NotFound();
             }
 
-            error.Status = 0;
-            _context.Errors.Update(error);
+            _context.Errors.Remove(error);
             await _context.SaveChangesAsync();
 
             return NoContent();

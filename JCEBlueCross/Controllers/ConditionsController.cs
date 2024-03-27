@@ -50,6 +50,25 @@ namespace JCEBlueCross.Controllers
             return condition;
         }
 
+        // GET: api/Conditions/error/5
+        [HttpGet("error/{errorId}")]
+        public async Task<ActionResult<IEnumerable<Condition>>> GetConditionByError(int errorId)
+        {
+            if (_context.Condition == null)
+            {
+                return NotFound();
+            }
+
+            var conditions = await _context.Condition.Where(c => c.Error.ErrorId == errorId).ToListAsync();
+
+            if (conditions.Count == 0)
+            {
+                return NoContent();
+            }
+            
+            return conditions;
+        }
+
         // PUT: api/Conditions/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -114,6 +133,29 @@ namespace JCEBlueCross.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        //DELETE: api/Conditions/error/5
+        [HttpDelete("error/{errorId}")]
+        public async Task<IActionResult> DeleteConditionsByError(int errorId)
+        {
+            if (_context.PayorErrors == null)
+            {
+                return NotFound();
+            }
+
+            var conditionsToDelete = await _context.Conditions.Where(c => c.Error.ErrorId == errorId).ToListAsync();
+
+            if (conditionsToDelete.Count == 0)
+            {
+                return NotFound();
+            }
+
+            _context.Conditions.RemoveRange(conditionsToDelete);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+
         }
 
         private bool ConditionExists(int id)
