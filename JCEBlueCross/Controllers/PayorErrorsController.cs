@@ -52,21 +52,28 @@ namespace JCEBlueCross.Controllers
 
         // GET: api/PayorErrors/error/5
         [HttpGet("error/{errorId}")]
-        public async Task<ActionResult<IEnumerable<PayorError>>> GetPayorsByError(int errorId)
+        public async Task<ActionResult<IEnumerable<Payor>>> GetPayorsByError(int errorId)
         {
             if (_context.PayorErrors == null)
             {
                 return NotFound();
             }
 
-            var payorErrors = await _context.PayorErrors.Where(p => p.Error.ErrorId == errorId).ToListAsync();
+            var payorErrors = await _context.PayorErrors.Include(pe => pe.Payor).ThenInclude(p => p.RegisteringUser).Where(p => p.Error.ErrorId == errorId).ToListAsync();
 
             if (payorErrors.Count == 0)
             {
                 return NoContent();
             }
 
-            return payorErrors;
+            var payors = payorErrors.Select(pe => pe.Payor).ToList();
+
+            if (payors.Count == 0)
+            {
+                return NoContent();
+            }
+
+            return payors;
         }
 
 

@@ -32,6 +32,23 @@ namespace JCEBlueCross.Controllers
             return await _context.Payor.Include(p => p.RegisteringUser).ToListAsync();  
         }
 
+        // GET: api/Payor
+        [HttpGet("active/")]
+        public async Task<ActionResult<IEnumerable<Payor>>> GetPayorActive()
+        {
+            var payors = await _context.Payor
+                                .Where(p => p.Status == 1)
+                                .Include(p => p.RegisteringUser)
+                                .ToListAsync();
+
+            if (payors == null || !payors.Any())
+            {
+                return NotFound();
+            }
+
+            return payors;
+        }
+
         // GET: api/Payor/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Payor>> GetPayor(int id)

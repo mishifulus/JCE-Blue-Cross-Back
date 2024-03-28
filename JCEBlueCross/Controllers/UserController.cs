@@ -36,6 +36,25 @@ namespace JCEBlueCross.Controllers
             return await _context.Users.ToListAsync();
         }
 
+        // GET: api/User
+        [HttpGet("active/")]
+        public async Task<ActionResult<IEnumerable<User>>> GetUsersActive()
+        {
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
+
+            var users = await _context.Users.Where(p => p.Status != 0).ToListAsync();
+
+            if ( users == null)
+            {
+                return NotFound();
+            }
+
+            return users;
+        }
+
         // GET: api/User/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
