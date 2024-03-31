@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace JCEBlueCross.Models
 {
@@ -37,6 +38,7 @@ namespace JCEBlueCross.Models
 
         public User? RegisteringUser { get; set; }
 
+        [JsonIgnore]
         public ICollection<PayorError> PayorErrors { get; set; } = new List<PayorError>();
     }
 }

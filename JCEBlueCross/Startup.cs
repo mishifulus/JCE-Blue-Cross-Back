@@ -1,4 +1,5 @@
 ﻿using System.Configuration;
+using System.Text.Json.Serialization;
 
 namespace JCEBlueCross
 {
@@ -22,6 +23,11 @@ namespace JCEBlueCross
                                .AllowAnyHeader()
                                .AllowAnyMethod();
                     });
+            });
+
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
             });
         }
 

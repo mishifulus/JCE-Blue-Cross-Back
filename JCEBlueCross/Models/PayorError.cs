@@ -7,8 +7,8 @@ namespace JCEBlueCross.Models
         [Key]
         public int PayorErrorId { get; set; }
 
-        public Error Error { get; set; }
+        public int ErrorId { get; set; }
 
-        public Payor Payor { get; set; }
+        public int PayorId { get; set; }
     }
 }

@@ -25,18 +25,18 @@ namespace JCEBlueCross.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Payor>>> GetPayor()
         {
-          if (_context.Payor == null)
+          if (_context.Payors == null)
           {
               return NotFound();
           }
-            return await _context.Payor.Include(p => p.RegisteringUser).ToListAsync();  
+            return await _context.Payors.Include(p => p.RegisteringUser).ToListAsync();  
         }
 
         // GET: api/Payor
         [HttpGet("active/")]
         public async Task<ActionResult<IEnumerable<Payor>>> GetPayorActive()
         {
-            var payors = await _context.Payor
+            var payors = await _context.Payors
                                 .Where(p => p.Status == 1)
                                 .Include(p => p.RegisteringUser)
                                 .ToListAsync();
@@ -53,11 +53,11 @@ namespace JCEBlueCross.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Payor>> GetPayor(int id)
         {
-          if (_context.Payor == null)
+          if (_context.Payors == null)
           {
               return NotFound();
           }
-            var payor = await _context.Payor.Include(p => p.RegisteringUser).FirstOrDefaultAsync(p => p.PayorId == id);
+            var payor = await _context.Payors.Include(p => p.RegisteringUser).FirstOrDefaultAsync(p => p.PayorId == id);
 
             if (payor == null)
             {
@@ -71,12 +71,12 @@ namespace JCEBlueCross.Controllers
         [HttpGet("search/{searchTerm}")]
         public async Task<ActionResult<IEnumerable<Payor>>> SearchPayors(string searchTerm)
         {
-            if (_context.Payor == null)
+            if (_context.Payors == null)
             {
                 return NotFound();
             }
 
-            var payors = await _context.Payor.Where(p =>
+            var payors = await _context.Payors.Where(p =>
                 p.PayorName.Contains(searchTerm) ||
                 p.PayorAddress.Contains(searchTerm) ||
                 p.ZipCode.Contains(searchTerm) ||
@@ -129,7 +129,7 @@ namespace JCEBlueCross.Controllers
         [HttpPost]
         public async Task<ActionResult<Payor>> PostPayor(Payor payor)
         {
-          if (_context.Payor == null)
+          if (_context.Payors == null)
           {
               return Problem("Entity set 'AppDbContext.Payor'  is null.");
           }
@@ -149,7 +149,7 @@ namespace JCEBlueCross.Controllers
                 payor.RegisteringUser = null;
             }
 
-            _context.Payor.Add(payor);
+            _context.Payors.Add(payor);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetPayor", new { id = payor.PayorId }, payor);
@@ -159,18 +159,18 @@ namespace JCEBlueCross.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePayor(int id)
         {
-            if (_context.Payor == null)
+            if (_context.Payors == null)
             {
                 return NotFound();
             }
-            var payor = await _context.Payor.FindAsync(id);
+            var payor = await _context.Payors.FindAsync(id);
             if (payor == null)
             {
                 return NotFound();
             }
 
             payor.Status = 0;
-            _context.Payor.Update(payor);
+            _context.Payors.Update(payor);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -178,7 +178,7 @@ namespace JCEBlueCross.Controllers
 
         private bool PayorExists(int id)
         {
-            return (_context.Payor?.Any(e => e.PayorId == id)).GetValueOrDefault();
+            return (_context.Payors?.Any(e => e.PayorId == id)).GetValueOrDefault();
         }
     }
 }

@@ -14,7 +14,7 @@ namespace JCEBlueCross.Context
 
         public DbSet<Provider> Providers { get; set; }
 
-        public DbSet<Payor> Payor { get; set; }
+        public DbSet<Payor> Payors { get; set; }
 
         public DbSet<Error> Errors { get; set; }
 
@@ -23,7 +23,5 @@ namespace JCEBlueCross.Context
         public DbSet<Condition> Conditions { get; set; }
 
         public DbSet<Claim> Claims { get; set; }
-
-        public DbSet<JCEBlueCross.Models.Condition> Condition { get; set; } = default!;
     }
 }

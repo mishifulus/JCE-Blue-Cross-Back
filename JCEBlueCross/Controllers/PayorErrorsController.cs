@@ -59,16 +59,17 @@ namespace JCEBlueCross.Controllers
                 return NotFound();
             }
 
-            var payorErrors = await _context.PayorErrors.Include(pe => pe.Payor).ThenInclude(p => p.RegisteringUser).Where(p => p.Error.ErrorId == errorId).ToListAsync();
+            var payorErrors = await _context.PayorErrors
+            .Where(pe => pe.ErrorId == errorId)
+            .ToListAsync();
 
-            if (payorErrors.Count == 0)
-            {
-                return NoContent();
-            }
+            var payorIds = payorErrors.Select(pe => pe.PayorId).ToList();
 
-            var payors = payorErrors.Select(pe => pe.Payor).ToList();
+            var payors = await _context.Payors
+            .Where(p => payorIds.Contains(p.PayorId))
+            .ToListAsync();
 
-            if (payors.Count == 0)
+            if (!payors.Any())
             {
                 return NoContent();
             }
@@ -76,51 +77,32 @@ namespace JCEBlueCross.Controllers
             return payors;
         }
 
-
-
-        // PUT: api/PayorErrors/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPayorError(int id, PayorError payorError)
-        {
-            if (id != payorError.PayorErrorId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(payorError).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PayorErrorExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
         // POST: api/PayorErrors
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<PayorError>> PostPayorError(PayorError payorError)
+        public async Task<ActionResult<PayorError>> PostPayorError(int errorId, int payorId)
         {
-          if (_context.PayorErrors == null)
-          {
-              return Problem("Entity set 'AppDbContext.PayorErrors'  is null.");
-          }
+            var error = await _context.Errors.FindAsync(errorId);
+            var payor = await _context.Payors.FindAsync(payorId);
+
+            if (error == null)
+            {
+                return NotFound($"Error with ID {errorId} not found.");
+            }
+
+            if (payor == null)
+            {
+                return NotFound($"Payor with ID {payorId} not found.");
+            }
+
+            var payorError = new PayorError
+            {
+                ErrorId = errorId,
+                PayorId = payorId
+            };
+
             _context.PayorErrors.Add(payorError);
             await _context.SaveChangesAsync();
-
             return CreatedAtAction("GetPayorError", new { id = payorError.PayorErrorId }, payorError);
         }
 
@@ -153,7 +135,31 @@ namespace JCEBlueCross.Controllers
                 return NotFound();
             }
 
-            var payorErrorsToDelete = await _context.PayorErrors.Where(p => p.Error.ErrorId == errorId).ToListAsync();
+            var payorErrorsToDelete = await _context.PayorErrors.Where(p => p.ErrorId == errorId).ToListAsync();
+
+            if (payorErrorsToDelete.Count == 0)
+            {
+                return NotFound();
+            }
+
+            _context.PayorErrors.RemoveRange(payorErrorsToDelete);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+
+        }
+
+        //DELETE: api/PayorErrors/error/5/payor/2
+        [HttpDelete("error/{errorId}/payor/{payorId}")]
+        public async Task<IActionResult> DeletePayorErrorsByPayor(int errorId, int payorId)
+        {
+            if (_context.PayorErrors == null)
+            {
+                return NotFound();
+            }
+
+            var payorErrorsToDelete = await _context.PayorErrors.Where(p => p.ErrorId == errorId && p.PayorId == payorId)
+                .ToListAsync();
 
             if (payorErrorsToDelete.Count == 0)
             {

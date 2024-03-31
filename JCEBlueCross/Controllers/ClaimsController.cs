@@ -171,7 +171,7 @@ namespace JCEBlueCross.Controllers
 
             if (claim.Payor != null)
             {
-                var payor = await _context.Payor.FindAsync(claim.Payor.PayorId);
+                var payor = await _context.Payors.FindAsync(claim.Payor.PayorId);
                 if (payor == null)
                 {
                     return NotFound("Incorrect payor");

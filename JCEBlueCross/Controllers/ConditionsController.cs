@@ -25,22 +25,22 @@ namespace JCEBlueCross.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Condition>>> GetCondition()
         {
-          if (_context.Condition == null)
+          if (_context.Conditions == null)
           {
               return NotFound();
           }
-            return await _context.Condition.ToListAsync();
+            return await _context.Conditions.ToListAsync();
         }
 
         // GET: api/Conditions/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Condition>> GetCondition(int id)
         {
-          if (_context.Condition == null)
+          if (_context.Conditions == null)
           {
               return NotFound();
           }
-            var condition = await _context.Condition.FindAsync(id);
+            var condition = await _context.Conditions.FindAsync(id);
 
             if (condition == null)
             {
@@ -54,12 +54,12 @@ namespace JCEBlueCross.Controllers
         [HttpGet("error/{errorId}")]
         public async Task<ActionResult<IEnumerable<Condition>>> GetConditionByError(int errorId)
         {
-            if (_context.Condition == null)
+            if (_context.Conditions == null)
             {
                 return NotFound();
             }
 
-            var conditions = await _context.Condition.Where(c => c.Error.ErrorId == errorId).ToListAsync();
+            var conditions = await _context.Conditions.Where(c => c.ErrorId == errorId).ToListAsync();
 
             if (conditions.Count == 0)
             {
@@ -105,11 +105,11 @@ namespace JCEBlueCross.Controllers
         [HttpPost]
         public async Task<ActionResult<Condition>> PostCondition(Condition condition)
         {
-          if (_context.Condition == null)
+          if (_context.Conditions == null)
           {
               return Problem("Entity set 'AppDbContext.Condition'  is null.");
           }
-            _context.Condition.Add(condition);
+            _context.Conditions.Add(condition);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetCondition", new { id = condition.ConditionId }, condition);
@@ -119,17 +119,17 @@ namespace JCEBlueCross.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCondition(int id)
         {
-            if (_context.Condition == null)
+            if (_context.Conditions == null)
             {
                 return NotFound();
             }
-            var condition = await _context.Condition.FindAsync(id);
+            var condition = await _context.Conditions.FindAsync(id);
             if (condition == null)
             {
                 return NotFound();
             }
 
-            _context.Condition.Remove(condition);
+            _context.Conditions.Remove(condition);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -144,7 +144,7 @@ namespace JCEBlueCross.Controllers
                 return NotFound();
             }
 
-            var conditionsToDelete = await _context.Conditions.Where(c => c.Error.ErrorId == errorId).ToListAsync();
+            var conditionsToDelete = await _context.Conditions.Where(c => c.ErrorId == errorId).ToListAsync();
 
             if (conditionsToDelete.Count == 0)
             {
@@ -160,7 +160,7 @@ namespace JCEBlueCross.Controllers
 
         private bool ConditionExists(int id)
         {
-            return (_context.Condition?.Any(e => e.ConditionId == id)).GetValueOrDefault();
+            return (_context.Conditions?.Any(e => e.ConditionId == id)).GetValueOrDefault();
         }
     }
 }

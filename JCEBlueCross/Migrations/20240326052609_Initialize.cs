@@ -69,7 +69,7 @@ namespace JCEBlueCross.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payor",
+                name: "Payors",
                 columns: table => new
                 {
                     PayorId = table.Column<int>(type: "int", nullable: false)
@@ -120,7 +120,7 @@ namespace JCEBlueCross.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Condition",
+                name: "Conditions",
                 columns: table => new
                 {
                     ConditionId = table.Column<int>(type: "int", nullable: false)
@@ -141,7 +141,7 @@ namespace JCEBlueCross.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PayorError",
+                name: "PayorErrors",
                 columns: table => new
                 {
                     PayorErrorId = table.Column<int>(type: "int", nullable: false)
