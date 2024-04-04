@@ -155,13 +155,13 @@ namespace JCEBlueCross.Models
         public double TotalAmount { get; set; } = 0.0;
 
         [Required]
-        public User? Member { get; set; }
+        public int MemberUserId { get; set; }
 
         [Required]
-        public Provider? Provider { get; set; }
+        public int ProviderId { get; set; }
 
         [Required]
-        public Payor? Payor { get; set; }
+        public int PayorId { get; set; }
 
         [Required]
         public int Status { get; set; } = 1; // 1 - Active, 0 - Inactive

@@ -29,7 +29,7 @@ namespace JCEBlueCross.Controllers
           {
               return NotFound();
           }
-            return await _context.Claims.Include(p => p.Member).Include(p => p.Provider).ThenInclude(p => p.RegisteringUser).Include(p => p.Payor).ThenInclude(p => p.RegisteringUser).ToListAsync();
+            return await _context.Claims.ToListAsync();
         }
 
         // GET: api/Claims/5
@@ -40,7 +40,7 @@ namespace JCEBlueCross.Controllers
           {
               return NotFound();
           }
-            var claim = await _context.Claims.Include(p => p.Member).Include(p => p.Provider).ThenInclude(p => p.RegisteringUser).Include(p => p.Payor).ThenInclude(p => p.RegisteringUser).FirstOrDefaultAsync(p => p.ClaimId == id);
+            var claim = await _context.Claims.FirstOrDefaultAsync(p => p.ClaimId == id);
 
             if (claim == null)
             {
@@ -87,8 +87,7 @@ namespace JCEBlueCross.Controllers
                 c.ConditionInformationCode.Contains(searchTerm) ||
                 c.TreatmentCodeCode.Contains(searchTerm) ||
                 c.ClaimPricingCode.Contains(searchTerm)
-                ).Include(p => p.Member).Include(p => p.Provider).ThenInclude(p => p.RegisteringUser).Include(p => p.Payor).ThenInclude(p => p.RegisteringUser)
-                .ToListAsync();
+                ).ToListAsync();
 
             if (!claims.Any())
             {
@@ -139,49 +138,37 @@ namespace JCEBlueCross.Controllers
               return Problem("Entity set 'AppDbContext.Claims'  is null.");
           }
             
-            if (claim.Member != null)
+            if (claim.MemberUserId != 0)
             {
-                var user = await _context.Users.FindAsync(claim.Member.UserId);
+                var user = await _context.Users.FindAsync(claim.MemberUserId);
                 if (user == null)
                 {
                     return NotFound("Incorrect member");
                 }
 
-                claim.Member = user;
-            }
-            else
-            {
-                claim.Member = null;
+                claim.MemberUserId = user.UserId;
             }
 
-            if (claim.Provider != null)
+            if (claim.ProviderId != 0)
             {
-                var provider = await _context.Providers.FindAsync(claim.Provider.ProviderId);
+                var provider = await _context.Providers.FindAsync(claim.ProviderId);
                 if (provider == null)
                 {
                     return NotFound("Incorrect provider");
                 }
 
-                claim.Provider = provider;
-            }
-            else
-            {
-                claim.Provider = null;
+                claim.ProviderId = provider.ProviderId;
             }
 
-            if (claim.Payor != null)
+            if (claim.PayorId != 0)
             {
-                var payor = await _context.Payors.FindAsync(claim.Payor.PayorId);
+                var payor = await _context.Payors.FindAsync(claim.PayorId);
                 if (payor == null)
                 {
                     return NotFound("Incorrect payor");
                 }
 
-                claim.Payor = payor;
-            }
-            else
-            {
-                claim.Payor = null;
+                claim.PayorId = payor.PayorId;
             }
 
             _context.Claims.Add(claim);
